@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["esnext"],
+    "lib": ["es6"],
     "experimentalDecorators": true
   },
   "include": ["**/*.ts"]
