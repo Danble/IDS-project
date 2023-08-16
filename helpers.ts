@@ -11,7 +11,7 @@ function get_first_empty_column(header_values: string[]): number {
   const reversed_header_values = header_values.slice().reverse();
   return (
     header_values.length -
-    reversed_header_values.findIndex(function (value) {
+    reversed_header_values.findIndex((value) => {
       return value === "";
     })
   );

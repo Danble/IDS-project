@@ -1,5 +1,16 @@
 // Compiled using apps-script-sheets 1.0.0 (TypeScript 4.9.5)
 function modifyHeaderNames() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sheets = spreadsheet.getSheets();
+  let idsDataSheet: GoogleAppsScript.Spreadsheet.Sheet;
+  sheets.forEach((sheet) => {
+    if (sheet.getName() === "IDS Data") {
+      //TODO consider to get the idsData columns here instead of doing it in the copyGlossToTSV
+      idsDataSheet = sheet;
+    } else if (isTSVFile(sheet)) {
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { ids_gloss_column: "H", gloss_name: "es_gloss" });
+    }
+  });
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   if (!sheet.getName().endsWith("_tsv")) {
     return;
@@ -13,58 +24,60 @@ function modifyHeaderNames() {
     return hr;
   });
   sheet.getRange(1, 1, 1, modified_rows.length).setValues([modified_rows]);
-  applyIDSGlosses();
+  // applyIDSGlosses();
 }
 
-// function create_column_in_first_empty_header() { //Not in use
-//   const header_range = sheet.getRange(1, 1, 1, sheet.getLastColumn());
-//   const header_values = header_range.getValues()[0];
-//   const reversed_header_values = header_values.slice().reverse(); //This is because I want the first empty column on the right side.
-//   const first_empty_column = header_values.length - 1 - reversed_header_values.findIndex(value => value === "");
-//   const first_empty_column_values = sheet.getRange(2, first_empty_column + 1, sheet.getLastRow() - 1, 1).getValues();
-//   return first_empty_column_values;
-// }
+interface GlossData {
+  ids_gloss_column: string;
+  gloss_name: string;
+}
 
-function copyValuesToTSV(ids_gloss_column: string, gloss_name: string): void {
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  const sheets = spreadsheet.getSheets();
-  sheets.forEach(function (sheet) {
-    const idsDataSheet = spreadsheet.getSheetByName("IDS Data");
-    const idsColumnC = idsDataSheet.getRange("C2:C").getValues();
-    const idsGlossColumn = idsDataSheet.getRange(`${ids_gloss_column}2:${ids_gloss_column}`).getValues();
-    if (isTSVFile(sheet)) {
-      const header_values = get_header_values(sheet);
-      const chapter_id_column = header_values.indexOf("chapter_id");
-      const entry_id_column = header_values.indexOf("entry_id");
-      const chapter_id_values = sheet.getRange(2, chapter_id_column + 1, sheet.getLastRow() - 1, 1).getValues();
-      const entry_id_values = sheet.getRange(2, entry_id_column + 1, sheet.getLastRow() - 1, 1).getValues();
-      const first_empty_column = get_first_empty_column(header_values);
-      const first_empty_column_range = sheet.getRange(2, first_empty_column, sheet.getLastRow() - 1, 1);
-      const first_empty_header = sheet.getRange(1, first_empty_column, 1, 1);
-      chapter_id_values.forEach((row, i) => {
-        const lookupValue = `${row[0]}-${entry_id_values[i][0]}`;
-        const matchIndex = idsColumnC.findIndex((value) => value[0] === lookupValue);
-        if (matchIndex !== -1) {
-          first_empty_column_range.getCell(i + 1, 1).setValue(idsGlossColumn[matchIndex][0]);
-        }
-      });
-      first_empty_header.setValue(gloss_name);
+interface GlossesSheets {
+  idsDataSheet: GoogleAppsScript.Spreadsheet.Sheet;
+  tsvSheet: GoogleAppsScript.Spreadsheet.Sheet;
+}
+
+function copyGlossToTSV(sheet_info: GlossesSheets, gloss_data: GlossData): void {
+  const { ids_gloss_column, gloss_name } = gloss_data;
+  const { idsDataSheet, tsvSheet } = sheet_info;
+  const idsIDColumn = idsDataSheet.getRange("C2:C").getValues();
+  const idsGlossColumn = idsDataSheet.getRange(`${ids_gloss_column}2:${ids_gloss_column}`).getValues();
+  const header_values = get_header_values(tsvSheet);
+  const chapter_id_column = header_values.indexOf("chapter_id");
+  const entry_id_column = header_values.indexOf("entry_id");
+  const chapter_id_values = tsvSheet.getRange(2, chapter_id_column + 1, tsvSheet.getLastRow() - 1, 1).getValues();
+  const entry_id_values = tsvSheet.getRange(2, entry_id_column + 1, tsvSheet.getLastRow() - 1, 1).getValues();
+  const first_empty_column = get_first_empty_column(header_values);
+  const first_empty_column_range = tsvSheet.getRange(2, first_empty_column, tsvSheet.getLastRow() - 1, 1);
+  chapter_id_values.forEach((row, i) => {
+    const lookupValue = `${row[0]}-${entry_id_values[i][0]}`;
+    const matchIndex = idsIDColumn.findIndex((value) => value[0] === lookupValue);
+    if (matchIndex !== -1) {
+      first_empty_column_range.getCell(i + 1, 1).setValue(idsGlossColumn[matchIndex][0]);
     }
   });
+  tsvSheet.getRange(1, first_empty_column, 1, 1).setValue(gloss_name);
 }
 
-function copySemanticDomainsToTSV(sheet) {
-  if (isTSVFile(sheet)) {
-    const header_values = get_header_values(sheet);
-    const first_empty_column = get_first_empty_column(header_values);
-    const first_empty_header_range = sheet.getRange(1, first_empty_column, 1, 2); // Merge with the next column
-    first_empty_header_range.setValue("semanticDomains").mergeAcross();
-  }
-}
+// function copySemanticDomainsToTSV(): void {
+//   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+//   const sheets = spreadsheet.getSheets();
+//   sheets.forEach(sheet => {
+//     const semantic_domains_sheet = spreadsheet.getSheetByName("semantic domains");
+//     const semantic_domains_values = seman
+//     if (isTSVFile(sheet)) {
+//       const header_values = get_header_values(sheet);
+//       const first_empty_column = get_first_empty_column(header_values);
+//       sheet.getRange(1, first_empty_column, 1, 2).setValue("semanticDomains").mergeAcross(); // Merge with the next column
+//       const second_empty_column_range = sheet.getRange(2, first_empty_column + 1, sheet.getLastRow() - 1, 1);
 
-function applyIDSGlosses() {
-  copyValuesToTSV("H", "es_gloss");
-  copyValuesToTSV("I", "fr_gloss");
-  copyValuesToTSV("J", "po_gloss");
-  copyValuesToTSV("K", "ru_gloss");
-}
+//     }
+//   })
+// }
+
+// function applyIDSGlosses() {
+//   copyGlossToTSV("H", "es_gloss");
+//   copyGlossToTSV("I", "fr_gloss");
+//   copyGlossToTSV("J", "po_gloss");
+//   copyGlossToTSV("K", "ru_gloss");
+// }
