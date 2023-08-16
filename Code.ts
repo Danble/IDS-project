@@ -1,30 +1,26 @@
 // Compiled using apps-script-sheets 1.0.0 (TypeScript 4.9.5)
 function modifyHeaderNames() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const idsDataSheet = spreadsheet.getSheetByName("IDS Data");
   const sheets = spreadsheet.getSheets();
-  let idsDataSheet: GoogleAppsScript.Spreadsheet.Sheet;
   sheets.forEach((sheet) => {
-    if (sheet.getName() === "IDS Data") {
-      //TODO consider to get the idsData columns here instead of doing it in the copyGlossToTSV
-      idsDataSheet = sheet;
-    } else if (isTSVFile(sheet)) {
+    if (isTSVFile(sheet)) {
       copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { ids_gloss_column: "H", gloss_name: "es_gloss" });
     }
   });
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  if (!sheet.getName().endsWith("_tsv")) {
-    return;
-  }
-  const header_row = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  const modified_rows = header_row.map((hr) => {
-    if (hr === "comment") hr = "notes";
-    // Add all other glosses
-    else if (hr === "meaning") hr = "en_gloss";
-    else if (hr.endsWith("_Phonemic")) hr = "lexeme";
-    return hr;
-  });
-  sheet.getRange(1, 1, 1, modified_rows.length).setValues([modified_rows]);
-  // applyIDSGlosses();
+  // const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  // if (!sheet.getName().endsWith("_tsv")) {
+  //   return;
+  // }
+  // const header_row = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  // const modified_rows = header_row.map((hr) => {
+  //   if (hr === "comment") hr = "notes";
+  //   // Add all other glosses
+  //   else if (hr === "meaning") hr = "en_gloss";
+  //   else if (hr.endsWith("_Phonemic")) hr = "lexeme";
+  //   return hr;
+  // });
+  // sheet.getRange(1, 1, 1, modified_rows.length).setValues([modified_rows]);
 }
 
 interface GlossData {
@@ -32,12 +28,12 @@ interface GlossData {
   gloss_name: string;
 }
 
-interface GlossesSheets {
+interface GlossesSheet {
   idsDataSheet: GoogleAppsScript.Spreadsheet.Sheet;
   tsvSheet: GoogleAppsScript.Spreadsheet.Sheet;
 }
 
-function copyGlossToTSV(sheet_info: GlossesSheets, gloss_data: GlossData): void {
+function copyGlossToTSV(sheet_info: GlossesSheet, gloss_data: GlossData): void {
   const { ids_gloss_column, gloss_name } = gloss_data;
   const { idsDataSheet, tsvSheet } = sheet_info;
   const idsIDColumn = idsDataSheet.getRange("C2:C").getValues();
