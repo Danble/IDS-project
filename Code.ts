@@ -23,17 +23,7 @@ function modifyHeaderNames() {
   // sheet.getRange(1, 1, 1, modified_rows.length).setValues([modified_rows]);
 }
 
-interface GlossData {
-  ids_gloss_column: string;
-  gloss_name: string;
-}
-
-interface GlossesSheet {
-  idsDataSheet: GoogleAppsScript.Spreadsheet.Sheet;
-  tsvSheet: GoogleAppsScript.Spreadsheet.Sheet;
-}
-
-function copyGlossToTSV(sheet_info: GlossesSheet, gloss_data: GlossData): void {
+function copyGlossToTSV(sheet_info: GlossesSheetData, gloss_data: GlossData): void {
   const { ids_gloss_column, gloss_name } = gloss_data;
   const { idsDataSheet, tsvSheet } = sheet_info;
   const idsIDColumn = idsDataSheet.getRange("C2:C").getValues();
