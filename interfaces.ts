@@ -1,9 +1,14 @@
 interface GlossData {
-  ids_gloss_column: string;
-  gloss_name: string;
+  idsGlossColumn: string;
+  glossName: string;
 }
 
 interface GlossesSheetData {
-  idsDataSheet: GoogleAppsScript.Spreadsheet.Sheet;
   tsvSheet: GoogleAppsScript.Spreadsheet.Sheet;
+  idsDataSheet: GoogleAppsScript.Spreadsheet.Sheet;
+}
+
+interface SemanticDomainsSheetData {
+  tsvSheet: GoogleAppsScript.Spreadsheet.Sheet;
+  semanticDomainsSheet: GoogleAppsScript.Spreadsheet.Sheet;
 }

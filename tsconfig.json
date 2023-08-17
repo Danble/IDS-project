@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["es6"],
+    "lib": ["ES2019"],
     "experimentalDecorators": true
   },
   "include": ["**/*.ts"]
