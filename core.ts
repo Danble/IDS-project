@@ -1,14 +1,14 @@
-function checkSheet(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
+function checkSheet(sheet: GoogleAppsScript.Spreadsheet.Sheet): boolean {
   const headerRow = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   return headerRow.includes("en_gloss");
 }
 
-function makeHeadersBold(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
+function makeHeadersBold(sheet: GoogleAppsScript.Spreadsheet.Sheet): void {
   const headerRange = sheet.getRange(1, 1, 1, sheet.getLastColumn());
   headerRange.setFontWeight("bold");
 }
 
-function modifyTSVHeaders(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
+function modifyTSVHeaders(sheet: GoogleAppsScript.Spreadsheet.Sheet): void {
   const header_row = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   const modified_rows = header_row.map((hr) => {
     if (hr === "comment") hr = "notes";
@@ -19,7 +19,7 @@ function modifyTSVHeaders(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
   sheet.getRange(1, 1, 1, modified_rows.length).setValues([modified_rows]);
 }
 
-function highlightTargetedSemanticDomains(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
+function highlightTargetedSemanticDomains(sheet: GoogleAppsScript.Spreadsheet.Sheet): void {
   const targeted_sematic_domains = ["1.5", "2.1", "5.4", "1.4", "6", "9", "2.3", "3.2", "5.9"];
   const highlight_color = "#ffe599";
   const header_row = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
@@ -54,7 +54,22 @@ function copyGlossToTSV(sheet_info: GlossesSheetData, gloss_data: GlossData): vo
       first_empty_column_range.getCell(i + 1, 1).setValue(ids_gloss_column_values[match_index][0]);
     }
   });
+
   tsvSheet.getRange(1, first_empty_column, 1, 1).setValue(glossName);
+}
+
+function createIDToTSV(sheet: GoogleAppsScript.Spreadsheet.Sheet): void {
+  const header_values = get_header_values(sheet);
+  const chapter_id_header = header_values.indexOf("chapter_id");
+  const entry_id_header = header_values.indexOf("entry_id");
+  const chapter_id_column_values = sheet.getRange(2, chapter_id_header + 1, sheet.getLastRow() - 1, 1).getValues();
+  const entry_id_column_values = sheet.getRange(2, entry_id_header + 1, sheet.getLastRow() - 1, 1).getValues();
+  const first_empty_column = get_first_empty_column(header_values);
+  const first_empty_column_range = sheet.getRange(2, first_empty_column, sheet.getLastRow() - 1, 1);
+  const concatenated_data_with_suffixes = create_unique_ids(chapter_id_column_values, entry_id_column_values);
+
+  first_empty_column_range.setValues(concatenated_data_with_suffixes);
+  sheet.getRange(1, first_empty_column, 1, 1).setValue("ID");
 }
 
 function copySemanticDomainsToTSV(sheet_info: SemanticDomainsSheetData): void {

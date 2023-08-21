@@ -16,3 +16,22 @@ function get_first_empty_column(header_values: string[]): number {
     })
   );
 }
+
+function create_unique_ids(chapter_id_column_values: any[], entry_id_column_values: any[]): any[][] {
+  const concatenated_data_with_suffixes = [];
+  const concatenated_freq = {};
+
+  chapter_id_column_values.forEach((row, i) => {
+    const concatenated = row + "-" + entry_id_column_values[i];
+    if (concatenated_freq[concatenated] === undefined) {
+      concatenated_freq[concatenated] = 1;
+      concatenated_data_with_suffixes.push([concatenated]);
+    } else {
+      concatenated_freq[concatenated]++;
+      const new_concatenated = concatenated + "-" + concatenated_freq[concatenated];
+      concatenated_data_with_suffixes.push([new_concatenated]);
+    }
+  });
+
+  return concatenated_data_with_suffixes;
+}
