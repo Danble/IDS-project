@@ -1,32 +1,31 @@
 // Compiled using apps-script-sheets 1.0.0 (TypeScript 4.9.5)
 function modifyHeaderNames() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  //TODO should check whether if lexeme header already exists
   const idsDataSheet = spreadsheet.getSheetByName("IDS Data");
   const semanticDomainsSheet = spreadsheet.getSheetByName("semantic domains");
   const sheets = spreadsheet.getSheets();
   sheets.forEach((sheet) => {
     if (isTSVFile(sheet)) {
-      // copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "H", glossName: "es_gloss" });
-      // copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "I", glossName: "fr_gloss" });
-      // copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "J", glossName: "po_gloss" });
-      // copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "K", glossName: "ru_gloss" });
+      //TODO should check whether if lexeme header already exists
+      modifyTSVHeaders(sheet);
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "H", glossName: "es_gloss" });
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "I", glossName: "fr_gloss" });
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "J", glossName: "po_gloss" });
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "K", glossName: "ru_gloss" });
       copySemanticDomainsToTSV({ tsvSheet: sheet, semanticDomainsSheet });
     }
   });
-  // const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  // if (!sheet.getName().endsWith("_tsv")) {
-  //   return;
-  // }
-  // const header_row = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  // const modified_rows = header_row.map((hr) => {
-  //   if (hr === "comment") hr = "notes";
-  //   // Add all other glosses
-  //   else if (hr === "meaning") hr = "en_gloss";
-  //   else if (hr.endsWith("_Phonemic")) hr = "lexeme";
-  //   return hr;
-  // });
-  // sheet.getRange(1, 1, 1, modified_rows.length).setValues([modified_rows]);
+}
+
+function modifyTSVHeaders(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
+  const header_row = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const modified_rows = header_row.map((hr) => {
+    if (hr === "comment") hr = "notes";
+    else if (hr === "meaning") hr = "en_gloss";
+    else if (hr.endsWith("_Phonemic")) hr = "lexeme";
+    return hr;
+  });
+  sheet.getRange(1, 1, 1, modified_rows.length).setValues([modified_rows]);
 }
 
 function copyGlossToTSV(sheet_info: GlossesSheetData, gloss_data: GlossData): void {
@@ -67,7 +66,9 @@ function copySemanticDomainsToTSV(sheet_info: SemanticDomainsSheetData): void {
   tsvSheet.getRange(1, first_empty_column, 1, 2).setValue("semanticDomains").mergeAcross(); // Merge with the next column
   second_empty_column_range.setDataValidation(dropdown_rule);
   chapter_id_column_values.forEach((row, i) => {
-    const match_index = ids_semantic_domains_equivalent_column_values.findIndex((value) => value[0] == row);
+    const match_index = ids_semantic_domains_equivalent_column_values.findIndex((value) =>
+      value[0].split(",").some((num) => num == row)
+    );
     if (match_index !== -1) {
       first_empty_column_range.getCell(i + 1, 1).setValue(semantic_domains_key_column_values[match_index][0]);
       second_empty_column_range.getCell(i + 1, 1).setValue(semantic_domains_label_column_values[match_index][0]);
