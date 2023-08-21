@@ -1,6 +1,6 @@
 function checkSheet(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
   const headerRow = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  return headerRow.includes("lexeme");
+  return headerRow.includes("en_gloss");
 }
 
 function makeHeadersBold(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
