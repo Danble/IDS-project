@@ -18,6 +18,7 @@ function modifyHeaderNames() {
       // style details
       makeHeadersBold(sheet);
       sheet.setFrozenRows(1);
+      highlightTargetedSemanticDomains(sheet);
     }
   });
 }

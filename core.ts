@@ -19,6 +19,22 @@ function modifyTSVHeaders(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
   sheet.getRange(1, 1, 1, modified_rows.length).setValues([modified_rows]);
 }
 
+function highlightTargetedSemanticDomains(sheet: GoogleAppsScript.Spreadsheet.Sheet) {
+  const targeted_sematic_domains = ["1.5", "2.1", "5.4", "1.4", "6", "9", "2.3", "3.2", "5.9"];
+  const highlight_color = "#ffe599";
+  const header_row = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const semantic_domains_column = header_row.indexOf("semanticDomain") + 1;
+  if (semantic_domains_column > 0) {
+    const semantic_domains_key_column_values = sheet.getRange(2, semantic_domains_column, sheet.getLastRow() - 1, 1).getValues();
+    semantic_domains_key_column_values.forEach((row, index) => {
+      const cell_value = row[0].toString();
+      if (targeted_sematic_domains.includes(cell_value)) {
+        sheet.getRange(index + 2, semantic_domains_column).setBackground(highlight_color);
+      }
+    });
+  }
+}
+
 function copyGlossToTSV(sheet_info: GlossesSheetData, gloss_data: GlossData): void {
   const { idsGlossColumn, glossName } = gloss_data;
   const { idsDataSheet, tsvSheet } = sheet_info;
@@ -54,7 +70,7 @@ function copySemanticDomainsToTSV(sheet_info: SemanticDomainsSheetData): void {
   const first_empty_column_range = tsvSheet.getRange(2, first_empty_column, tsvSheet.getLastRow() - 1, 1);
   const second_empty_column_range = tsvSheet.getRange(2, first_empty_column + 1, tsvSheet.getLastRow() - 1, 1);
   const dropdown_rule = SpreadsheetApp.newDataValidation().requireValueInRange(semantic_domains_range).build();
-  tsvSheet.getRange(1, first_empty_column, 1, 2).setValue("semanticDomains").mergeAcross(); // Merge with the next column
+  tsvSheet.getRange(1, first_empty_column, 1, 2).setValue("semanticDomain").mergeAcross(); // Merge with the next column
   second_empty_column_range.setDataValidation(dropdown_rule);
   chapter_id_column_values.forEach((row, i) => {
     const match_index = ids_semantic_domains_equivalent_column_values.findIndex((value) =>
