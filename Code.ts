@@ -9,17 +9,17 @@ function modifyHeaderNames() {
       return;
     }
     if (isTSVFile(sheet)) {
+      modifyTSVHeaders(sheet);
       createIDToTSV(sheet);
-      // modifyTSVHeaders(sheet);
-      // copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "H", glossName: "es_gloss" });
-      // copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "I", glossName: "fr_gloss" });
-      // copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "J", glossName: "po_gloss" });
-      // copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "K", glossName: "ru_gloss" });
-      // copySemanticDomainsToTSV({ tsvSheet: sheet, semanticDomainsSheet });
-      // // style details
-      // makeHeadersBold(sheet);
-      // sheet.setFrozenRows(1);
-      // highlightTargetedSemanticDomains(sheet);
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "H", glossName: "es_gloss" });
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "I", glossName: "fr_gloss" });
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "J", glossName: "po_gloss" });
+      copyGlossToTSV({ idsDataSheet, tsvSheet: sheet }, { idsGlossColumn: "K", glossName: "ru_gloss" });
+      copySemanticDomainsToTSV({ tsvSheet: sheet, semanticDomainsSheet });
+      // style details
+      makeHeadersBold(sheet);
+      sheet.setFrozenRows(1);
+      highlightTargetedSemanticDomains(sheet);
     }
   });
 }
