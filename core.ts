@@ -76,7 +76,6 @@ function copySemanticDomainsToTSV(sheet_info: SemanticDomainsSheetData): void {
   const { semanticDomainsSheet, tsvSheet } = sheet_info;
   const semantic_domains_range = semanticDomainsSheet.getRange("A2:A");
   const semantic_domains_label_column_values = semantic_domains_range.getValues();
-  const semantic_domains_key_column_values = semanticDomainsSheet.getRange("B2:B").getValues();
   const ids_semantic_domains_equivalent_column_values = semanticDomainsSheet.getRange("C2:C").getValues();
   const header_values = get_header_values(tsvSheet);
   const chapter_id_header = header_values.indexOf("chapter_id");
