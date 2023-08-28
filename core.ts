@@ -92,7 +92,13 @@ function copySemanticDomainsToTSV(sheet_info: SemanticDomainsSheetData): void {
       value[0].split(",").some((num) => num == row)
     );
     if (match_index !== -1) {
-      first_empty_column_range.getCell(i + 1, 1).setValue(semantic_domains_key_column_values[match_index][0]);
+      first_empty_column_range
+        .getCell(i + 1, 1)
+        .setFormula(
+          `=IF(ISTEXT(${second_empty_column_range.getCell(i + 1, 1).getA1Notation()}),VLOOKUP(${second_empty_column_range
+            .getCell(i + 1, 1)
+            .getA1Notation()}, 'semantic domains'!$A$3:$B$1004, 2, FALSE),"")`
+        );
       second_empty_column_range.getCell(i + 1, 1).setValue(semantic_domains_label_column_values[match_index][0]);
     }
   });
