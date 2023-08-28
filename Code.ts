@@ -1,5 +1,5 @@
 // Compiled using apps-script-sheets 1.0.0 (TypeScript 4.9.5)
-function modifyHeaderNames() {
+function prepareIDSDictionariesToBatchImport() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   const idsDataSheet = spreadsheet.getSheetByName("IDS Data");
   const semanticDomainsSheet = spreadsheet.getSheetByName("semantic domains");
